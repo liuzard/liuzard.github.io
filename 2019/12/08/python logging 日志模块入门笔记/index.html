@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>python logging 日志模块入门笔记 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在项目的开发和调试中，我们常常会用print打印中间信息，来查看程序是否运行正常。但是采用print有以下缺点：（1）print 的信息只能在控制台输出，而无法保存（2）假如程序中到处都是print，会影响程序的可读性，并且在程序发布的时候需要删除这些print。等你再次想调试的时候又要增加print，这是一个很麻烦的事情。（3）print 打印的信息都会输出到控制台，但是实际上程序print 的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python logging 日志模块入门笔记">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;08&#x2F;python%20logging%20%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在项目的开发和调试中，我们常常会用print打印中间信息，来查看程序是否运行正常。但是采用print有以下缺点：（1）print 的信息只能在控制台输出，而无法保存（2）假如程序中到处都是print，会影响程序的可读性，并且在程序发布的时候需要删除这些print。等你再次想调试的时候又要增加print，这是一个很麻烦的事情。（3）print 打印的信息都会输出到控制台，但是实际上程序print 的">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https:&#x2F;&#x2F;img-blog.csdnimg.cn&#x2F;20191207204606342.png">
+<meta property="og:updated_time" content="2019-12-08T02:41:40.122Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;img-blog.csdnimg.cn&#x2F;20191207204606342.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-python logging 日志模块入门笔记" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/08/python%20logging%20%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/" class="article-date">
+  <time datetime="2019-12-08T02:42:09.957Z" itemprop="datePublished">2019-12-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      python logging 日志模块入门笔记
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在项目的开发和调试中，我们常常会用print打印中间信息，来查看程序是否运行正常。但是采用print有以下缺点：<br>（1）print 的信息只能在控制台输出，而无法保存<br>（2）假如程序中到处都是print，会影响程序的可读性，并且在程序发布的时候需要删除这些print。等你再次想调试的时候又要增加print，这是一个很麻烦的事情。<br>（3）print 打印的信息都会输出到控制台，但是实际上程序print 的信息重要程度是不同的，在开发的不同阶段，你可能希望打印不同的信息。<br>（4）当程序上线之后，就无法再通过print查看程序的运行信息，无发捕捉到程序在部署之后的异常信息。</p>
+<p>由此可见，在我们简单的程序调试中print虽然很好用，但是有没有更好的方法，可以解决这些问题呢。有，那就是日志，这篇文章主要记录python自带日志模块 logging的学习，实际上第三方日志模块甚至是java的日志模块的使用都是大同小异的。</p>
+<h3 id="1、日志模块-Hello-world"><a href="#1、日志模块-Hello-world" class="headerlink" title="1、日志模块 Hello world"></a>1、日志模块 Hello world</h3><p>我们上面说到，日志模块是用来代替简单粗暴的print，那么很显然，日志模块可以很简单地实现之前 print 的功能，请看以下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">logging.basicConfig() <span class="comment">#加载默认配置，后面会详述如何自定义格式等</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">logging.debug(<span class="string">'This is a debug message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">logging.info(<span class="string">'This is an info message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">logging.warning(<span class="string">'This is a warning message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">logging.error(<span class="string">'This is an error message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">logging.critical(<span class="string">'This is a critical message'</span>)</span></pre></td></tr></table></figure>
+<p>其中logging的 debug()、info()、warning()、error()、critical() 函数就代替了以前的print()，用来记录和输出信息。这里不同的函数是指记录的信息的级别不一样，从函数名可以很容易得到相应的级别信息。后面会详述。</p>
+<p>上段代码的输出为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">WARNING:root:This <span class="keyword">is</span> a warning message</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">ERROR:root:This <span class="keyword">is</span> an error message</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">CRITICAL:root:This <span class="keyword">is</span> a critical message</span></pre></td></tr></table></figure>
+<p>看到这你可能觉得很奇怪，上一段代码明明记录了5行信息，怎么只输出了3行，这里就要降到日志级别的问题，还有默认的输出级别。其实很简单，比如程序上线之后，你就不希望日志里有debug的信息了，你可能关注的是error以上的信息，你就可以设置只记录和输出error级别以上的信息，这也是日志的好处。</p>
+<h3 id="2、日志级别"><a href="#2、日志级别" class="headerlink" title="2、日志级别"></a>2、日志级别</h3><p>logging日志的级别包含以下六级，从上到下重要性依次提高，其实从日志的级别名称就可以大致看出相应的意思，不同的输出使用什么级别的日志输出需要自己根据需求来确定：</p>
+<p>NOTSET</p>
+<p>DEBUG</p>
+<p>INFO</p>
+<p>WARNING</p>
+<p>ERROR</p>
+<p>CRITICAL</p>
+<p>在默认的配置下，日志只记录和输出WARNING和以上级别的日志。而且日志的格式也是设置好的。那么我们是否可以修改logging的默认配置呢，当然可以！</p>
+<h3 id="3、修改日志的默认配置"><a href="#3、修改日志的默认配置" class="headerlink" title="3、修改日志的默认配置"></a>3、修改日志的默认配置</h3><p>basicConfig()默认的日志输出格式如下：<br><img src="https://img-blog.csdnimg.cn/20191207204606342.png" alt="在这里插入图片描述"><br>其中 root 为根 logger名称，后面会讲到自己定义logger，实际上自己定义的logger是基于根logger(默认名称为root) ，这个放到后面再讲。</p>
+<p>假如你想定义自己输出日志的格式，你可以在基本配置的基础上进行修改，即可以修改basicConfig()方法中的参数，它的参数如下表：</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数名称</th>
+<th align="left">参数描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">filename</td>
+<td align="left">日志输出到文件的文件名</td>
+</tr>
+<tr>
+<td align="left">filemode</td>
+<td align="left">文件模式，r[+]、w[+]、a[+]</td>
+</tr>
+<tr>
+<td align="left">format</td>
+<td align="left">日志输出的格式</td>
+</tr>
+<tr>
+<td align="left">datefat</td>
+<td align="left">日志附带日期时间的格式</td>
+</tr>
+<tr>
+<td align="left">style</td>
+<td align="left">格式占位符，默认为 “%” 和 “{}”</td>
+</tr>
+<tr>
+<td align="left">level</td>
+<td align="left">设置日志输出级别</td>
+</tr>
+<tr>
+<td align="left">stream</td>
+<td align="left">定义输出流，用来初始化 StreamHandler 对象，不能 filename 参数一起使用，否则会ValueError 异常</td>
+</tr>
+<tr>
+<td align="left">handles</td>
+<td align="left">定义处理器，用来创建 Handler 对象，不能和 filename 、stream 参数一起使用，否则也会抛出 ValueError 异常</td>
+</tr>
+</tbody></table>
+<p>以下举例说明：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">logging.basicConfig(filename=<span class="string">"test.log"</span>, filemode=<span class="string">"w"</span>, format=<span class="string">"%(asctime)s %(name)s:%(levelname)s:%(message)s"</span>, datefmt=<span class="string">"%d-%M-%Y %H:%M:%S"</span>, level=logging.DEBUG)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">logging.debug(<span class="string">'This is a debug message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">logging.info(<span class="string">'This is an info message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">logging.warning(<span class="string">'This is a warning message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">logging.error(<span class="string">'This is an error message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">logging.critical(<span class="string">'This is a critical message'</span>)</span></pre></td></tr></table></figure>
+<p>这里：<br>filemode表示写log文件的方式，“w”代表重写文件，会覆盖掉文件已有的内容。显然还有一种模式 “a”，是在log文件后面追加日志，不会覆盖原文件。<br>format指的是日志输出的格式，dateformt指的是日志的时间格式。</p>
+<p>这样设置之后，日志不会在控制台输出，而会写入到日志文件（test.log）里。能不能同时两者都输出呢？这个涉及到Handler的概念，后面再讲。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">07-55-2019 20:55:57 root:DEBUG:This is a debug message</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">07-55-2019 20:55:57 root:INFO:This is an info message</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">07-55-2019 20:55:57 root:WARNING:This is a warning message</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">07-55-2019 20:55:57 root:ERROR:This is an error message</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">07-55-2019 20:55:57 root:CRITICAL:This is a critical message</span></pre></td></tr></table></figure>
+<p>可以看到，日志按照我们设置的格式输出了。</p>
+<p>另外值得注意的一点是，当我们程序出现异常时(exception),我们也希望日志能够记录下来，但是通过logging.info(),…,logging.critical()这些无参的方法无法记录这些信息，具体的解决方法是，需要在方法里，将exc_info参数设置为True，表示捕捉异常信息。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">logging.basicConfig(filename=<span class="string">"test.log"</span>, filemode=<span class="string">"w"</span>, format=<span class="string">"%(asctime)s %(name)s:%(levelname)s:%(message)s"</span>, datefmt=<span class="string">"%d-%M-%Y %H:%M:%S"</span>, level=logging.DEBUG)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">a = <span class="number">5</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">b = <span class="number">0</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">    c = a / b</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">    <span class="comment"># 下面三种方式三选一，推荐使用第一种</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line">    logging.exception(<span class="string">"Exception occurred"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line">    logging.error(<span class="string">"Exception occurred"</span>, exc_info=<span class="literal">True</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line">    logging.log(level=logging.DEBUG, msg=<span class="string">"Exception occurred"</span>, exc_info=<span class="literal">True</span>)</span></pre></td></tr></table></figure>
+<p>这样做之后，日志的文件里面就会出现以下信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">07-03-2019 21:03:53 root:ERROR:Exception occurred</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">Traceback (most recent call last):</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">  File &quot;C:&#x2F;Users&#x2F;liuzard&#x2F;Desktop&#x2F;rnn_text_classification&#x2F;logging_test.py&quot;, line 7, in &lt;module&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">    c &#x3D; a &#x2F; b</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">ZeroDivisionError: division by zero</span></pre></td></tr></table></figure>
+
+<p>我们上面介绍了基于基本的日志配置和根logger可以实现的功能，实际上，假如是简单的日志需求的话，通过这种基本配置可以解决大部分问题，同时写法也比较简单。但是假如你想要实现一些比较复杂的日志功能，那么就需要创建和定制自己的logger。</p>
+<h3 id="4、创建自己的logger"><a href="#4、创建自己的logger" class="headerlink" title="4、创建自己的logger"></a>4、创建自己的logger</h3><p>我们上面说到，假如要同时输出程序运行信息到日志文件还有控制台，并且，这里要加一个功能，日志和控制台记录的日志级别是不同的，那么就需要创建自己的logger了。</p>
+<p>喜欢看代码的可以跳过下面这段文字直接先看代码。</p>
+<p>上面其实已经提到，自己创建的logger对象实际上是基于根 logger对象，准确的说，其实日志系统里只有一个logger对象。logger类采用了单例模型，且不能直接实例化，需要通过get_Logger的方式获取。假如这句话不理解的话没关系，你只要记住，你自己不管创建多少logger，实际上调用info()等方法的时候还是在用根logger的方法。</p>
+<p>所以我们自己创建的logger可以理解为在根logger做一些设定得到的，比如将根logger的名称“root”改为我们自己想要的名字。</p>
+<p>在介绍了logger对象之后，这里还要说一下 handler 和 formatter 的概念。</p>
+<p>其实也很好理解，我们创建了logger对象之后，就可以用这个logger对象来记录不同级别的信息了。但是记录了这些信息之后，该如何处理这些信息呢，比如是记录为文件，还是输出到控制台呢，这里面就需要有一个东西来处理logger记录到的信息，这个东西就叫做handler，顾名思义，就是处理器。一个logger对象可以有多个handler，比如一个handler复杂将日志信息记录到日志文件，另外一个handler负责将日志信息输出到控制台。</p>
+<p>有了handler之后，formatter也就很好理解了，同样从名字就可以看出，叫格式器，负责控制输出格式的。比如上面的handler，记录到日志文件的handler我想要一种格式，输出到控制台的handler我想要另外一种格式，那么就可以给不同的handler赋予不同的formatter。</p>
+<p>说了这么大段文字，估计各位都头疼了，上代码…</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging.handlers</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">logger = logging.getLogger(<span class="string">"logger"</span>) <span class="comment"># 创建自己的logger对象，名字叫做“logger”</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">handler1 = logging.StreamHandler()   <span class="comment"># 创建控制器对象，输出到控制台</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">handler2 = logging.FileHandler(filename=<span class="string">"test.log"</span>) <span class="comment"># 创建控制器对象，输出到日志文件</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">logger.setLevel(logging.DEBUG)  <span class="comment"># 将 logger的级别设为DEBUG</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">handler1.setLevel(logging.WARNING)  <span class="comment"># 将handler1 的级别设置为 Warning，也就是控制台只输出warning级别以上的信息</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line">handler2.setLevel(logging.DEBUG) <span class="comment"># 将handler2的级别设置为 debug，log文件记录debug级别以上的信息</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建一个formatter对象，并设置formatter对象的格式</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">13</span></pre></td><td class="code"><pre><span class="line">formatter = logging.Formatter(<span class="string">"%(asctime)s %(name)s %(levelname)s %(message)s"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">14</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将formatter对象赋给两个handler,这样两个handler的输出格式就是formatter指定的格式了</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">15</span></pre></td><td class="code"><pre><span class="line">handler1.setFormatter(formatter)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">16</span></pre></td><td class="code"><pre><span class="line">handler2.setFormatter(formatter)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">17</span></pre></td><td class="code"><pre><span class="line"><span class="comment">#logger 对象添加两个处理器handler，这样logger记录下来信息就会通过两个handler分别处理，即输出到日志文件和控制台</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">18</span></pre></td><td class="code"><pre><span class="line">logger.addHandler(handler1)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">19</span></pre></td><td class="code"><pre><span class="line">logger.addHandler(handler2)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">20</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">21</span></pre></td><td class="code"><pre><span class="line">logger.debug(<span class="string">'This is a customer debug message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">22</span></pre></td><td class="code"><pre><span class="line">logger.info(<span class="string">'This is an customer info message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">23</span></pre></td><td class="code"><pre><span class="line">logger.warning(<span class="string">'This is a customer warning message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">24</span></pre></td><td class="code"><pre><span class="line">logger.error(<span class="string">'This is an customer error message'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">25</span></pre></td><td class="code"><pre><span class="line">logger.critical(<span class="string">'This is a customer critical message'</span>)</span></pre></td></tr></table></figure>
+<p>运行上述代码，我们可以就可以看到，控制台和日志文件分别输出了不同级别的日志信息。</p>
+<p>值得注意的是，我们可以看到日志logger对象和handler对象都指定了日志级别。那么如何看最后输出的日志级别呢？基本原则是，先看logger对象的日志级别，再看handler对象的日志级别。其实很容易理解，就是日志记录到什么级别的信息是最重要的，这是logger做的事情。而基于记录到的日志信息，再决定输出什么，是后面的事，这个是handler做的事情。<br>举例来说，假如logger只记录到 error 级别以上的信息，而handler想输出info级别的信息，最终日志只会出现error级别的信息，因为error级别以下的信息压根没哟记录。</p>
+<p>然后是formatter的一些参数还有写法，如下表所示，看着很多，其实只需要记得最常用的几个就行了，其他的用到的时候再查。</p>
+<table>
+<thead>
+<tr>
+<th align="left">变量</th>
+<th align="left">格式</th>
+<th>变量描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">asctime</td>
+<td align="left">%(asctime)s</td>
+<td>将日志的时间构造成可读的形式，默认情况下是精确到毫秒，如 2018-10-13 23:24:57,832，可以额外指定 datefmt 参数来指定该变量的格式</td>
+</tr>
+<tr>
+<td align="left">name</td>
+<td align="left">%(name)</td>
+<td>日志对象的名称</td>
+</tr>
+<tr>
+<td align="left">filename</td>
+<td align="left">%(filename)s</td>
+<td>不包含路径的文件名</td>
+</tr>
+<tr>
+<td align="left">pathname</td>
+<td align="left">%(pathname)s</td>
+<td>包含路径的文件名</td>
+</tr>
+<tr>
+<td align="left">funcName</td>
+<td align="left">%(funcName)s</td>
+<td>日志记录所在的函数名</td>
+</tr>
+<tr>
+<td align="left">levelname</td>
+<td align="left">%(levelname)s</td>
+<td>日志的级别名称</td>
+</tr>
+<tr>
+<td align="left">message</td>
+<td align="left">%(message)s</td>
+<td>具体的日志信息</td>
+</tr>
+<tr>
+<td align="left">lineno</td>
+<td align="left">%(lineno)d</td>
+<td>日志记录所在的行号</td>
+</tr>
+<tr>
+<td align="left">pathname</td>
+<td align="left">%(pathname)s</td>
+<td>完整路径</td>
+</tr>
+<tr>
+<td align="left">process</td>
+<td align="left">%(process)d</td>
+<td>当前进程ID</td>
+</tr>
+<tr>
+<td align="left">processName</td>
+<td align="left">%(processName)s</td>
+<td>当前进程名称</td>
+</tr>
+<tr>
+<td align="left">thread</td>
+<td align="left">%(thread)d</td>
+<td>当前线程ID</td>
+</tr>
+<tr>
+<td align="left">threadName</td>
+<td align="left">%threadName)s</td>
+<td>当前线程名称</td>
+</tr>
+</tbody></table>
+<p>最后需要注意的一点是，定义了logger之后，就不要再用logging了，因为用logging实际上是在用根logger，实际上和logger用的是同一个对象，如果同时用，相当于同时调用了两次logger对象。</p>
+<h3 id="5、-日志的配置"><a href="#5、-日志的配置" class="headerlink" title="5、 日志的配置"></a>5、 日志的配置</h3><p>上面我们看到如何定制自己的logger对象，可以看到，可配置的参数还是挺多的。假如你想要将配置用到其他程序，那么这种复制代码的方式不是很方便，并且这些配置放在代码里也影响可读性。很显然我们可以用配置文件来解决这些问题。</p>
+<h4 id="（1）yml配置文件"><a href="#（1）yml配置文件" class="headerlink" title="（1）yml配置文件"></a>（1）yml配置文件</h4><p>yml格式是当前应用最为广泛的配置文件，强烈建议采用这个格式的配置文件。举例如下：<br>创建test.yml文件：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="number">1</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"><span class="attr">formatters:</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">  <span class="attr">simple:</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">    <span class="attr">format:</span> <span class="string">'%(asctime)s - %(name)s - %(levelname)s - %(message)s'</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line"><span class="attr">handlers:</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">  <span class="attr">console:</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">    <span class="attr">class:</span> <span class="string">logging.StreamHandler</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">    <span class="attr">level:</span> <span class="string">DEBUG</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">    <span class="attr">formatter:</span> <span class="string">simple</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line">  </span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line"><span class="attr">loggers:</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line">  <span class="attr">simpleExample:</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">13</span></pre></td><td class="code"><pre><span class="line">    <span class="attr">level:</span> <span class="string">DEBUG</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">14</span></pre></td><td class="code"><pre><span class="line">    <span class="attr">handlers:</span> <span class="string">[console]</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">15</span></pre></td><td class="code"><pre><span class="line">    <span class="attr">propagate:</span> <span class="literal">no</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">16</span></pre></td><td class="code"><pre><span class="line"><span class="attr">root:</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">17</span></pre></td><td class="code"><pre><span class="line">  <span class="attr">level:</span> <span class="string">DEBUG</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">18</span></pre></td><td class="code"><pre><span class="line">  <span class="attr">handlers:</span> <span class="string">[console]</span></span></pre></td></tr></table></figure>
+<p>加载配置文件代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging.config</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># 需要安装 pyymal 库</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> yaml</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> open(<span class="string">'test.yaml'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">    config = yaml.safe_load(f.read())</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">    logging.config.dictConfig(config)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">logger = logging.getLogger(<span class="string">"sampleLogger"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># 省略日志输出</span></span></pre></td></tr></table></figure>
+<h4 id="2-ini-配置文件"><a href="#2-ini-配置文件" class="headerlink" title="(2) .ini 配置文件"></a>(2) .ini 配置文件</h4><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="section">[loggers]</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"><span class="attr">keys</span>=root,sampleLogger</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line"><span class="section">[handlers]</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line"><span class="attr">keys</span>=consoleHandler</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line"><span class="section">[formatters]</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line"><span class="attr">keys</span>=sampleFormatter</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line"><span class="section">[logger_root]</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line"><span class="attr">level</span>=DEBUG</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line"><span class="attr">handlers</span>=consoleHandler</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">13</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">14</span></pre></td><td class="code"><pre><span class="line"><span class="section">[logger_sampleLogger]</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">15</span></pre></td><td class="code"><pre><span class="line"><span class="attr">level</span>=DEBUG</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">16</span></pre></td><td class="code"><pre><span class="line"><span class="attr">handlers</span>=consoleHandler</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">17</span></pre></td><td class="code"><pre><span class="line"><span class="attr">qualname</span>=sampleLogger</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">18</span></pre></td><td class="code"><pre><span class="line"><span class="attr">propagate</span>=<span class="number">0</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">19</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">20</span></pre></td><td class="code"><pre><span class="line"><span class="section">[handler_consoleHandler]</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">21</span></pre></td><td class="code"><pre><span class="line"><span class="attr">class</span>=StreamHandler</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">22</span></pre></td><td class="code"><pre><span class="line"><span class="attr">level</span>=DEBUG</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">23</span></pre></td><td class="code"><pre><span class="line"><span class="attr">formatter</span>=sampleFormatter</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">24</span></pre></td><td class="code"><pre><span class="line"><span class="attr">args</span>=(sys.stdout,)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">25</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">26</span></pre></td><td class="code"><pre><span class="line"><span class="section">[formatter_sampleFormatter]</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">27</span></pre></td><td class="code"><pre><span class="line"><span class="attr">format</span>=%(asctime)s - %(name)s - %(levelname)s - %(message)s</span></pre></td></tr></table></figure>
+
+<p>读取配置文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging.config</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">logging.config.fileConfig(fname=<span class="string">'test.ini'</span>, disable_existing_loggers=<span class="literal">False</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">logger = logging.getLogger(<span class="string">"sampleLogger"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># 省略日志输出</span></span></pre></td></tr></table></figure>
+<h4 id="（3）从字典中获取配置"><a href="#（3）从字典中获取配置" class="headerlink" title="（3）从字典中获取配置"></a>（3）从字典中获取配置</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging.config</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">config = &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">    <span class="string">'version'</span>: <span class="number">1</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">    <span class="string">'formatters'</span>: &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">        <span class="string">'simple'</span>: &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'format'</span>: <span class="string">'%(asctime)s - %(name)s - %(levelname)s - %(message)s'</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">        &#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">        <span class="comment"># 其他的 formatter</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line">    &#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line">    <span class="string">'handlers'</span>: &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line">        <span class="string">'console'</span>: &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">13</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'class'</span>: <span class="string">'logging.StreamHandler'</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">14</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'level'</span>: <span class="string">'DEBUG'</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">15</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'formatter'</span>: <span class="string">'simple'</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">16</span></pre></td><td class="code"><pre><span class="line">        &#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">17</span></pre></td><td class="code"><pre><span class="line">        <span class="string">'file'</span>: &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">18</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'class'</span>: <span class="string">'logging.FileHandler'</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">19</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'filename'</span>: <span class="string">'logging.log'</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">20</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'level'</span>: <span class="string">'DEBUG'</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">21</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'formatter'</span>: <span class="string">'simple'</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">22</span></pre></td><td class="code"><pre><span class="line">        &#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">23</span></pre></td><td class="code"><pre><span class="line">        <span class="comment"># 其他的 handler</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">24</span></pre></td><td class="code"><pre><span class="line">    &#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">25</span></pre></td><td class="code"><pre><span class="line">    <span class="string">'loggers'</span>:&#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">26</span></pre></td><td class="code"><pre><span class="line">        <span class="string">'StreamLogger'</span>: &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">27</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'handlers'</span>: [<span class="string">'console'</span>],</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">28</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'level'</span>: <span class="string">'DEBUG'</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">29</span></pre></td><td class="code"><pre><span class="line">        &#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">30</span></pre></td><td class="code"><pre><span class="line">        <span class="string">'FileLogger'</span>: &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">31</span></pre></td><td class="code"><pre><span class="line">            <span class="comment"># 既有 console Handler，还有 file Handler</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">32</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'handlers'</span>: [<span class="string">'console'</span>, <span class="string">'file'</span>],</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">33</span></pre></td><td class="code"><pre><span class="line">            <span class="string">'level'</span>: <span class="string">'DEBUG'</span>,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">34</span></pre></td><td class="code"><pre><span class="line">        &#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">35</span></pre></td><td class="code"><pre><span class="line">        <span class="comment"># 其他的 Logger</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">36</span></pre></td><td class="code"><pre><span class="line">    &#125;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">37</span></pre></td><td class="code"><pre><span class="line">&#125;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">38</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">39</span></pre></td><td class="code"><pre><span class="line">logging.config.dictConfig(config)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">40</span></pre></td><td class="code"><pre><span class="line">StreamLogger = logging.getLogger(<span class="string">"StreamLogger"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">41</span></pre></td><td class="code"><pre><span class="line">FileLogger = logging.getLogger(<span class="string">"FileLogger"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">42</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># 省略日志输出</span></span></pre></td></tr></table></figure>
+
+<h3 id="6、日志的划分"><a href="#6、日志的划分" class="headerlink" title="6、日志的划分"></a>6、日志的划分</h3><p>程序上线之后长期运行，会产生大量的日志记录，假如都记录在一个文件上的话，就会造成单个日志文件过大的问题。这里介绍两种日志的划分方法。分别是按日志的大小和时间划分。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># # 每隔 1000 Byte 划分一个日志文件，备份文件为 3 个</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">file_handler1 = logging.handlers.RotatingFileHandler(<span class="string">"test.log"</span>, mode=<span class="string">"w"</span>, maxBytes=<span class="number">1000</span>, backupCount=<span class="number">3</span>, encoding=<span class="string">"utf-8"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每隔 1小时 划分一个日志文件，interval 是时间间隔，备份文件为 10 个</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">file_handler2 = logging.handlers.TimedRotatingFileHandler(<span class="string">"test.log"</span>, when=<span class="string">"H"</span>, interval=<span class="number">1</span>, backupCount=<span class="number">10</span>)</span></pre></td></tr></table></figure>
+
+<h3 id="7、中文乱码问题"><a href="#7、中文乱码问题" class="headerlink" title="7、中文乱码问题"></a>7、中文乱码问题</h3><p>日志中写入中文会出现编码问题，这里可以将handler的处理编码格式设置为 utf-8。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自定义 Logger 配置</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">handler = logging.FileHandler(filename=<span class="string">"test.log"</span>, encoding=<span class="string">"utf-8"</span>)</span></pre></td></tr></table></figure>
+
+<p>ref : <a href="https://cloud.tencent.com/developer/article/1354396" target="_blank" rel="noopener">Python日志库logging总结-可能是目前为止将logging库总结的最好的一篇文章</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/08/python%20logging%20%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/" data-id="ck3wej4yp0001usveclo9eyrf" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/12/08/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Hello World</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/08/python%20logging%20%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/">python logging 日志模块入门笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/08/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
